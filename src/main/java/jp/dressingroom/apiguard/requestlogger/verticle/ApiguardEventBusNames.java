@@ -1,4 +1,4 @@
-package jp.dressingroom.gameserver.apiguard.verticle;
+package jp.dressingroom.apiguard.requestlogger.verticle;
 
 public enum ApiguardEventBusNames {
   ENCRYPT("payload.encrypt"),
