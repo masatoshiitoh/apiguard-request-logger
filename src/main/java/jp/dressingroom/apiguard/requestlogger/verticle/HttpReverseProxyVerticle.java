@@ -2,15 +2,20 @@ package jp.dressingroom.apiguard.requestlogger.verticle;
 
 import io.vertx.config.ConfigRetriever;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.Route;
+import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import jp.dressingroom.apiguard.requestlogger.ConfigKeyNames;
+
+import java.util.Base64;
 
 
 public class HttpReverseProxyVerticle extends AbstractVerticle {
@@ -29,24 +34,41 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
           JsonObject result = json.result();
 
           // setup proxy client
-          proxyHost = result.getString(ConfigKeyNames.PAYLOAD_ENCRYPT_PROXY_HOSTNAME.value(), "localhost");
-          proxyPort = result.getInteger(ConfigKeyNames.PAYLOAD_ENCRYPT_PROXY_PORT.value(), 8080);
-          proxyUserAgent = result.getString(ConfigKeyNames.PAYLOAD_ENCRYPT_PROXY_USERAGENT.value(), "ApiGuard/PayloadEncrypt 1.0");
-          proxyUseSsl = result.getBoolean(ConfigKeyNames.PAYLOAD_ENCRYPT_PROXY_USESSL.value(), false);
+          proxyHost = result.getString(ConfigKeyNames.REQUEST_LOGGER_PROXY_HOSTNAME.value(), "localhost");
+          proxyPort = result.getInteger(ConfigKeyNames.REQUEST_LOGGER_PROXY_PORT.value(), 8080);
+          proxyUserAgent = result.getString(ConfigKeyNames.REQUEST_LOGGER_PROXY_USERAGENT.value(), "ApiGuard/RequestLogger 1.0");
+          proxyUseSsl = result.getBoolean(ConfigKeyNames.REQUEST_LOGGER_PROXY_USESSL.value(), false);
 
           WebClientOptions webClientOptions = new WebClientOptions();
           webClientOptions.setUserAgent(proxyUserAgent);
           client = WebClient.create((Vertx) vertx, webClientOptions);
 
-          Integer port = result.getInteger(ConfigKeyNames.PAYLOAD_ENCRYPT_SERVER_PORT.value());
+          Integer port = result.getInteger(ConfigKeyNames.REQUEST_LOGGER_SERVER_PORT.value());
           HttpServer server = vertx.createHttpServer();
-          server.listen(port);
+          Router router = Router.router(vertx);
 
-          startPromise.complete();
+          // Catch all - methods and paths.
+          Route route = router.route();
+          route.handler(bodiedProxyHandler());
+          server.requestHandler(router).listen(port);
         } catch (Exception e) {
           startPromise.fail(e);
         }
+      startPromise.complete();
       }));
+  }
+
+  private Handler<RoutingContext> bodiedProxyHandler() {
+    return routingContext -> {
+      routingContext.request().bodyHandler(bodiedProxyHandler -> {
+          Base64.Encoder encoder = Base64.getEncoder();
+          sendResponse(routingContext, HttpStatusCodes.OK,
+            "request logger called." +
+              "payload(raw): " + new String(bodiedProxyHandler.getBytes())
+          );
+        }
+      );
+    };
   }
 
 

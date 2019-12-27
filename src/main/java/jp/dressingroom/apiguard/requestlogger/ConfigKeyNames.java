@@ -1,15 +1,12 @@
 package jp.dressingroom.apiguard.requestlogger;
 
 public enum ConfigKeyNames {
-  PAYLOAD_ENCRYPT_SERVER_PORT("payloadencrypt.server.port"),
+  REQUEST_LOGGER_SERVER_PORT("requestlogger.server.port"),
 
-  PAYLOAD_ENCRYPT_PROXY_HOSTNAME("payloadencrypt.proxy.hostname"),
-  PAYLOAD_ENCRYPT_PROXY_PORT("payloadencrypt.proxy.port"),
-  PAYLOAD_ENCRYPT_PROXY_USERAGENT("payloadencrypt.proxy.ua"),
-  PAYLOAD_ENCRYPT_PROXY_USESSL("payload.proxy.usessl"),
-
-  CRYPTO_IV_BASE64("payloadencrypt.iv.base64"),
-  CRYPTO_PSK_BASE64("payloadencrypt.psk.base64"),
+  REQUEST_LOGGER_PROXY_HOSTNAME("requestlogger.proxy.hostname"),
+  REQUEST_LOGGER_PROXY_PORT("requestlogger.proxy.port"),
+  REQUEST_LOGGER_PROXY_USERAGENT("requestlogger.proxy.ua"),
+  REQUEST_LOGGER_PROXY_USESSL("requestlogger.proxy.usessl"),
   ;
 
   private final String text;

@@ -22,7 +22,7 @@ public class TestMainVerticle {
     System.setProperty("requestlogger.proxy.port","18888");
 
     vertx.deployVerticle(new HttpResponderMainVerticle(), testContext.succeeding(id->testContext.completeNow()));
-    vertx.deployVerticle(new MainVerticle(), testContext.succeeding(id -> testContext.completeNow()));
+    vertx.deployVerticle(new RequestLoggerMainVerticle(), testContext.succeeding(id -> testContext.completeNow()));
   }
 
   @Test

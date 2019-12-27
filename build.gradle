@@ -26,7 +26,7 @@ compileTestJava.options.encoding = 'UTF-8'
 
 sourceCompatibility = '1.8'
 
-def mainVerticleName = 'jp.dressingroom.gameserver.apiguard.MainVerticle'
+def mainVerticleName = 'jp.dressingroom.apiguard.requestlogger.RequestLoggerMainVerticle'
 def watchForChange = 'src/**/*'
 def doOnChange = './gradlew classes'
 
