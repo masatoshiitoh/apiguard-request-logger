@@ -9,7 +9,10 @@ public class RequestLoggerMainVerticle extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     vertx.deployVerticle("jp.dressingroom.apiguard.requestlogger.verticle.HttpReverseProxyVerticle", res -> {
-      if (res.failed()) { startPromise.fail("HttpReverseProxyVerticle start failed: " + res.cause());}
+      if (res.failed()) {
+        System.out.println("HttpReverseProxyVerticle start failed: " + res.cause());
+        startPromise.fail("HttpReverseProxyVerticle start failed: " + res.cause());
+      }
     });
     startPromise.complete();
   }
