@@ -24,7 +24,8 @@ application {
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
-sourceCompatibility = '1.8'
+sourceCompatibility = '1.11'
+targetCompatibility = '1.11'
 
 def mainVerticleName = 'jp.dressingroom.apiguard.requestlogger.RequestLoggerMainVerticle'
 def watchForChange = 'src/**/*'

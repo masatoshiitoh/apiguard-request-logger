@@ -96,7 +96,6 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
                 if (originRequest.succeeded()) {
                   HttpResponse<Buffer> responseFromOrigin = originRequest.result();
                   int statusCode = responseFromOrigin.statusCode();
-                  HttpStatusCodes status = HttpStatusCodes.getHttpStatusCode(statusCode);
 
                   responseToRequestor.headers().setAll(responseFromOrigin.headers());
                   if (originRequest.result().body() != null) {
@@ -108,7 +107,7 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
 
                   // success log
                   logRequestResponse(
-                    setResponseInfo(req, status, responseFromOrigin.bodyAsString(), responseFromOrigin.headers().entries().toString()));
+                    setResponseInfo(req, statusCode, responseFromOrigin.bodyAsString(), responseFromOrigin.headers().entries().toString()));
                 } else {
                   responseToRequestor
                     .setStatusCode(HttpStatusCodes.INTERNAL_SERVER_ERROR.value())
@@ -116,7 +115,7 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
 
                   // origin request failed log
                   logRequestResponse(
-                    setResponseInfo(req, HttpStatusCodes.INTERNAL_SERVER_ERROR, "", ""));
+                    setResponseInfo(req, HttpStatusCodes.INTERNAL_SERVER_ERROR.value(), "", ""));
                 }
               });
         }
@@ -139,8 +138,8 @@ public class HttpReverseProxyVerticle extends AbstractVerticle {
     return req;
   }
 
-  JsonObject setResponseInfo(JsonObject src, HttpStatusCodes status, String body, String headersString) {
-    src.put("statusCode", status.value())
+  JsonObject setResponseInfo(JsonObject src, int statusCode, String body, String headersString) {
+    src.put("statusCode", statusCode)
       .put("responseHeader", headersString)
       .put("responseBody", body);
     return src;
