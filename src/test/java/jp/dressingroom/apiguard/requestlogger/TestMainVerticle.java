@@ -6,6 +6,7 @@ import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import jp.dressingroom.apiguard.httpresponder.HttpResponderMainVerticle;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,29 +16,46 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(VertxExtension.class)
 public class TestMainVerticle {
 
+  static int nextPort;
+
+  int responderPort;
+  int targetPort;
+
+  @BeforeAll
+  static void initPort() {
+    nextPort = 8000;
+  }
+
+  static int getPort() {
+    return nextPort ++;
+  }
 
   @BeforeEach
   void deployVerticle(Vertx vertx, VertxTestContext testContext) {
 
-    System.setProperty("server.port","18888"); // http-responder port
+    responderPort = getPort();
+    targetPort = getPort();
 
-    System.setProperty("requestlogger.server.port","18889");
-    System.setProperty("requestlogger.proxy.port","18888");
+    System.setProperty("server.port", String.valueOf(responderPort)); // http-responder port
+    System.setProperty("requestlogger.server.port", String.valueOf(targetPort));
+    System.setProperty("requestlogger.proxy.port", String.valueOf(responderPort));
 
-    vertx.deployVerticle(new HttpResponderMainVerticle(), testContext.succeeding(id->testContext.completeNow()));
-    vertx.deployVerticle(new RequestLoggerMainVerticle(), testContext.succeeding(id -> testContext.completeNow()));
-  }
-
-  @Test
-  void verticleDeployed(Vertx vertx, VertxTestContext testContext) throws Throwable {
-    testContext.completeNow();
+    vertx.deployVerticle(new HttpResponderMainVerticle(), r1 -> {
+      vertx.deployVerticle(new RequestLoggerMainVerticle(), r2 -> {
+        if (r2.succeeded()) {
+          testContext.completeNow();
+        } else {
+          testContext.failNow(new Exception());
+        }
+      });
+    });
   }
 
   @Test
   void checkHttpResponderDeployed(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.get(18888, "localhost", "/hello")
+    client.get(responderPort, "localhost", "/hello")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.body().equals("Hello"));
@@ -51,7 +69,7 @@ public class TestMainVerticle {
   void requestLoggerDeployed(Vertx vertx, VertxTestContext testContext) throws Throwable {
     WebClient client = WebClient.create(vertx);
 
-    client.get(18889, "localhost", "/")
+    client.get(targetPort, "localhost", "/")
       .as(BodyCodec.string())
       .send(testContext.succeeding(response -> testContext.verify(() -> {
         assertTrue(response.statusCode() == 200);

@@ -12,9 +12,10 @@ public class RequestLoggerMainVerticle extends AbstractVerticle {
       if (res.failed()) {
         System.out.println("HttpReverseProxyVerticle start failed: " + res.cause());
         startPromise.fail("HttpReverseProxyVerticle start failed: " + res.cause());
+      } else {
+        startPromise.complete();
       }
     });
-    startPromise.complete();
   }
 
 //  @Override

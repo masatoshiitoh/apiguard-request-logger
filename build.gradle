@@ -42,7 +42,7 @@ dependencies {
   testImplementation "io.vertx:vertx-unit:$vertxVersion"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterEngineVersion"
   testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterEngineVersion"
-  testImplementation 'jp.dressingroom.apiguard:Mavenrepobygradle:1.0.0-SNAPSHOT'
+  testImplementation 'jp.dressingroom.apiguard:Mavenrepobygradle:1.0.1'
 }
 
 
